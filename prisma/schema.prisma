@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model Users{
+  id String @id @default(uuid())
+  username String @unique @db.VarChar(20)
+  email String @unique
+  firstName String @db.VarChar(20)
+  lastName String @db.VarChar(20)
+  password String
+  interest String
+  createdAt Date @default(now())
+  updatedAt Date @updatedAt
+}
+
+ 
+model Sports{
+  id String @id @default(uuid())
+  category String @unique
+  description String
+}
+
+model Leagues{
+  id String @id @default(uuid())
+  name String @unique
+  country String
+  sportId String
+  
+}
