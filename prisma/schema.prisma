@@ -9,13 +9,32 @@ datasource db {
 
 
 model Users{
-  id String @id @default(uuid())
-  username String @unique @db.VarChar(20)
-  email String @unique
-  firstName String @db.VarChar(20)
-  lastName String @db.VarChar(20)
-  password String
-  interest String?
+  id        String   @id @default(uuid())
+  username  String   @unique @db.VarChar(20)
+  email     String   @unique
+  firstName String   @db.VarChar(20)
+  lastName  String   @db.VarChar(20)
+  password  String
+  interest  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  favourites Favourites[]
+}
+
+model Matches {
+  id         String       @id @default(uuid())
+  favourites Favourites[]
+}
+
+model Favourites {
+  id        String   @id @default(uuid())
+  userId    String
+  matchId   String
+  createdAt DateTime @default(now())
+
+  user  Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match Matches @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, matchId])
 }
