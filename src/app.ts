@@ -1,5 +1,5 @@
 import express from "express";
-
+import authRoutes from "./routes/auth.routes";
 const app = express();
 const serverStartTime = Date.now();
 
@@ -7,6 +7,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 console.log(serverStartTime);
 
+
+app.use("/auth", authRoutes);
 app.get("/", (req, res) => {
   const uptimeMs = Date.now() - serverStartTime;
   const uptimeSeconds = Math.floor(uptimeMs / 1000);
