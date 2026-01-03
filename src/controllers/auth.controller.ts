@@ -47,7 +47,7 @@ const authController = {
     } catch (error: any) {
       if (error.message == "User is not Registered")
         return res.status(404).json({ error: error.message });
-      if (error.message == "Invalid Credentials")
+      if (error.message == "Invalid credentials")
         return res.status(401).json({ error: error.message });
       return res.status(500).json({ error: "Something went wrong" });
     }

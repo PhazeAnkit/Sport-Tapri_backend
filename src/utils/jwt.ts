@@ -39,7 +39,7 @@ export function verifyAccessToken(token: string) {
     throw new Error("Access Token Invaild");
 
   const claim = JSON.parse(Buffer.from(payload, "base64url").toString());
-  if (claim["exp"] > Math.floor(Date.now() / 1000))
+  if (claim["exp"] < Math.floor(Date.now() / 1000))
     throw new Error("Access Token Expired");
 
   return claim;
