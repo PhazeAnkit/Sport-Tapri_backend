@@ -1,23 +1,35 @@
 import { NextFunction, Request, Response } from "express";
-import { error } from "node:console";
 import { verifyAccessToken } from "../utils/jwt";
 
-export function auth(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader)
-    return res.status(401).json({ error: "User not authorized Access denied" });
-
-  const token = authHeader.split(" ")[1];
-  if (!token)
-    return res
-      .status(401)
-      .json({ error: "User not authourized Access denied" });
+export function auth(
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction
+) {
   try {
+    let token = req.cookies?.access_token;
+
+    if (!token && req.headers.authorization) {
+      const parts = req.headers.authorization.split(" ");
+      if (parts.length === 2 && parts[0] === "Bearer") {
+        token = parts[1];
+      }
+    }
+
+    if (!token) {
+      return res.status(401).json({
+        error: "User not authorized. Access denied",
+      });
+    }
+
     const payload = verifyAccessToken(token);
+
     req.user = payload;
+
     next();
-  } catch (error: any) {
-    return res.status(401).json({ error: "User not authorized Access denied" });
+  } catch (err) {
+    return res.status(401).json({
+      error: "User not authorized. Access denied",
+    });
   }
 }

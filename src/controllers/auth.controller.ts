@@ -42,13 +42,26 @@ const authController = {
       return res.status(400).json({ error: "Request is missing field" });
 
     try {
-      const user = await authService.loginUser({ email, password });
-      return res.status(201).json({ data: user });
+      const token = await authService.loginUser({ email, password });
+
+      res.cookie("access_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
+        maxAge: 9_000 * 1000,
+        path: "/",
+      });
+
+      return res.status(200).json({
+        message: "Login successful",
+      });
     } catch (error: any) {
-      if (error.message == "User is not Registered")
+      if (error.message === "User is not Registered")
         return res.status(404).json({ error: error.message });
-      if (error.message == "Invalid credentials")
+
+      if (error.message === "Invalid credentials")
         return res.status(401).json({ error: error.message });
+
       return res.status(500).json({ error: "Something went wrong" });
     }
   },
