@@ -3,6 +3,7 @@ import authRoutes from "./routes/auth.routes";
 import favouriteRoutes from "./routes/favourite.routes";
 import { auth } from "./middlewares/auth.middleware";
 import matchRoutes from "./routes/match.routes";
+import sportRoutes from "./routes/sport.routes";
 import { me } from "./controllers/me.controller";
 import cookieParser from "cookie-parser";
 
@@ -39,6 +40,7 @@ app.get("/me", auth, me);
 app.use("/auth", authRoutes);
 app.use("/favourite", favouriteRoutes);
 app.use("/matches", matchRoutes);
+app.use("/sports", sportRoutes);
 app.post("/logout", (_req, res) => {
   res.clearCookie("access_token", {
     httpOnly: true,
