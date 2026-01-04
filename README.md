@@ -6,6 +6,12 @@ Designed for **cursor-based pagination**, **serverless deployments**, and **high
 
 ---
 
+## Frontend Repo
+
+**Frontend Repository:** https://github.com/PhazeAnkit/sport-tapri-frontend
+
+---
+
 ## Features
 
 - Cursor-based infinite scrolling (no OFFSET)
@@ -21,21 +27,25 @@ Designed for **cursor-based pagination**, **serverless deployments**, and **high
 ## Tech Stack
 
 ### Backend
+
 - Node.js
 - Express.js
 - TypeScript
 
 ### Database & ORM
+
 - PostgreSQL
 - Prisma ORM
 - Neon Serverless Postgres
 
 ### Auth & Utilities
+
 - JWT (authentication)
 - bcrypt / bcryptjs (password hashing)
 - dotenv (environment variables)
 
 ### Deployment
+
 - Vercel (Serverless Functions)
 - Neon (Database)
 
@@ -85,6 +95,8 @@ Create a `.env` file:
 DATABASE_URL=postgresql://USER:PASSWORD@HOST/db?sslmode=require
 JWT_SECRET=your_jwt_secret
 PORT=3000
+NODE_ENV= //{development||production}
+CORS_ORIGINS=   //comma seperated site
 ```
 
 ---
@@ -162,4 +174,3 @@ http://localhost:3000
 - One DB hit per mutation
 
 ---
-
