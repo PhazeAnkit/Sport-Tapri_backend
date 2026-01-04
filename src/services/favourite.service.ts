@@ -12,7 +12,7 @@ const favouriteService = {
   async getFavourites(user: userToken) {
     if (!user.sub) throw new Error("Unauthorized User");
     try {
-      const favouriteMatches = await prisma.favourites.findMany({
+      const favouriteMatches = await prisma.favourite.findMany({
         where: { userId: user.sub },
         select: {
           match: true,
@@ -29,7 +29,7 @@ const favouriteService = {
     }
 
     try {
-      const favourite = await prisma.favourites.create({
+      const favourite = await prisma.favourite.create({
         data: {
           user: {
             connect: { id: user.sub },
@@ -64,7 +64,7 @@ const favouriteService = {
     }
 
     try {
-      const result = await prisma.favourites.deleteMany({
+      const result = await prisma.favourite.deleteMany({
         where: {
           id: favouriteId,
           userId: user.sub, // ownership enforced here

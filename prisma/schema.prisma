@@ -8,7 +8,7 @@ datasource db {
 }
 
 
-model Users{
+model User {
   id        String   @id @default(uuid())
   username  String   @unique @db.VarChar(20)
   email     String   @unique
@@ -19,22 +19,176 @@ model Users{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  favourites Favourites[]
+  favourites Favourite[]
 }
 
-model Matches {
-  id         String       @id @default(uuid())
-  favourites Favourites[]
-}
-
-model Favourites {
+model Favourite {
   id        String   @id @default(uuid())
   userId    String
   matchId   String
   createdAt DateTime @default(now())
 
-  user  Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  match Matches @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
 
   @@unique([userId, matchId])
+}
+
+
+
+enum SportType {
+  TEAM
+  INDIVIDUAL
+  MOTORSPORT
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  CANCELLED
+}
+
+enum ResultType {
+  SCORE
+  SETS
+  TIME
+  POINTS
+}
+
+
+model Sport {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  sportType SportType
+  isActive  Boolean   @default(true)
+
+  leagues      League[]
+  teams        Team[]
+  participants Participant[]
+  matches      Match[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model League {
+  id            String   @id @default(uuid())
+  sportId       String
+  name          String
+  country       String
+  currentSeason String
+  logoUrl       String?
+  isActive      Boolean  @default(true)
+
+  sport   Sport   @relation(fields: [sportId], references: [id], onDelete: Cascade)
+  teams   Team[]
+  matches Match[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sportId])
+}
+
+model Team {
+  id        String   @id @default(uuid())
+  sportId   String
+  leagueId  String
+  name      String
+  shortName String?
+  country   String
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+
+  sport        Sport @relation(fields: [sportId], references: [id], onDelete: Cascade)
+  league       League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  participants Participant[]
+
+  homeMatches Match[] @relation("HomeTeam")
+  awayMatches Match[] @relation("AwayTeam")
+  winnerResults Result[] @relation("WinnerTeam")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sportId])
+  @@index([leagueId])
+}
+
+model Participant {
+  id          String   @id @default(uuid())
+  sportId     String
+  teamId      String?
+  name        String
+  country     String
+  dateOfBirth DateTime?
+  role        String?
+  ranking     Int?
+  isActive    Boolean  @default(true)
+
+  sport   Sport @relation(fields: [sportId], references: [id], onDelete: Cascade)
+  team    Team?  @relation(fields: [teamId], references: [id])
+  results Result[] @relation("WinnerParticipant")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sportId])
+  @@index([teamId])
+}
+
+model Match {
+  id         String      @id @default(uuid())
+  sportId    String
+  leagueId   String
+  season     String
+
+  homeTeamId String?
+  awayTeamId String?
+
+  eventName  String?
+  venue      String?
+  startTime  DateTime
+  endTime    DateTime?
+  status     MatchStatus
+
+  sport   Sport  @relation(fields: [sportId], references: [id], onDelete: Cascade)
+  league  League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+
+  homeTeam Team? @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam Team? @relation("AwayTeam", fields: [awayTeamId], references: [id])
+
+  result Result?
+  favourites Favourite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sportId])
+  @@index([leagueId])
+}
+
+model Result {
+  id                  String     @id @default(uuid())
+  matchId             String     @unique
+
+  homeScore           Int?
+  awayScore           Int?
+
+  winnerTeamId        String?
+  winnerParticipantId String?
+
+  resultType ResultType
+  extraData  Json?
+
+  match      Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  winnerTeam Team? @relation("WinnerTeam", fields: [winnerTeamId], references: [id])
+  winnerParticipant Participant?  @relation("WinnerParticipant", fields: [winnerParticipantId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([winnerTeamId])
+  @@index([winnerParticipantId])
 }

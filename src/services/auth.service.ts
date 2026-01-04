@@ -16,7 +16,7 @@ type regiterationPayload = {
 const authService = {
   async registerUser(data: regiterationPayload) {
     const email = data.email.trim().toLowerCase();
-    const existingUser: number = await prisma.users.count({
+    const existingUser: number = await prisma.user.count({
       where: {
         email: email,
       },
@@ -26,7 +26,7 @@ const authService = {
       throw new Error("User Already Registered");
     }
     const hasedPassword = await bcrypt.hash(data.password, SALT);
-    const user = await prisma.users.create({
+    const user = await prisma.user.create({
       data: {
         username: data.username,
         email,
@@ -49,7 +49,7 @@ const authService = {
   async loginUser(data: { email: string; password: string }) {
     const email = data.email.trim().toLowerCase();
 
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user.findUnique({
       select: {
         id: true,
         email: true,
