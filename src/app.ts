@@ -2,6 +2,7 @@ import express from "express";
 import authRoutes from "./routes/auth.routes";
 import favouriteRoutes from "./routes/favourite.routes";
 import { auth } from "./middlewares/auth.middleware";
+import matchRoutes from "./routes/match.routes";
 import { me } from "./controllers/me.controller";
 import cookieParser from "cookie-parser";
 
@@ -37,7 +38,7 @@ console.log(serverStartTime);
 app.get("/me", auth, me);
 app.use("/auth", authRoutes);
 app.use("/favourite", favouriteRoutes);
-
+app.use("/matches", matchRoutes);
 app.post("/logout", (_req, res) => {
   res.clearCookie("access_token", {
     httpOnly: true,
