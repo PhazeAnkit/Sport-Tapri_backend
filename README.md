@@ -1,4 +1,4 @@
-# Sports Data API
+# Sports Tapri Backend
 
 A scalable backend API for sports applications providing **matches, sports, leagues, players**, and **user favourites**, built with **Node.js, Express, Prisma, and PostgreSQL (Neon)**.
 
