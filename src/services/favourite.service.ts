@@ -9,20 +9,6 @@ type userToken = {
 };
 
 const favouriteService = {
-  async getFavourites(user: userToken) {
-    if (!user.sub) throw new Error("Unauthorized User");
-    try {
-      const favouriteMatches = await prisma.favourite.findMany({
-        where: { userId: user.sub },
-        select: {
-          match: true,
-        },
-      });
-      return favouriteMatches;
-    } catch (error: any) {
-      throw new Error("Error in Fetching Data");
-    }
-  },
   async markFavourite(user: userToken, matchId: string) {
     if (!user?.sub) {
       throw new Error("Unauthorized");
@@ -79,6 +65,74 @@ const favouriteService = {
     } catch {
       throw new Error("Failed to delete favourite");
     }
+  },
+  async getFavourites(userId: string) {
+    const favourites = await prisma.favourite.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true, // favouriteId
+        match: {
+          include: {
+            sport: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+            league: {
+              select: {
+                id: true,
+                name: true,
+                country: true,
+              },
+            },
+            homeTeam: {
+              select: {
+                id: true,
+                name: true,
+                shortName: true,
+                logoUrl: true,
+              },
+            },
+            awayTeam: {
+              select: {
+                id: true,
+                name: true,
+                shortName: true,
+                logoUrl: true,
+              },
+            },
+            result: {
+              select: {
+                homeScore: true,
+                awayScore: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return favourites.map((fav) => ({
+      id: fav.id,
+      match: {
+        id: fav.match.id,
+        startTime: fav.match.startTime.toISOString(),
+        status: fav.match.status,
+
+        sport: fav.match.sport,
+        league: fav.match.league,
+        homeTeam: fav.match.homeTeam,
+        awayTeam: fav.match.awayTeam,
+        result: fav.match.result ?? undefined,
+      },
+    }));
   },
 };
 

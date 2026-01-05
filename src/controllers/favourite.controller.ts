@@ -11,7 +11,7 @@ const favouriteController = {
         .json({ error: "User not authorized Access denied" });
 
     try {
-      const favourites = await favouriteService.getFavourites(user);
+      const favourites = await favouriteService.getFavourites(user.sub);
 
       return res.status(200).json({
         success: true,
