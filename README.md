@@ -8,44 +8,45 @@ Designed for **cursor-based pagination**, **serverless deployments**, and **high
 
 ## Frontend Repo
 
-**Frontend Repository:** https://github.com/PhazeAnkit/sport-tapri-frontend
+**Frontend Repository:**  
+https://github.com/PhazeAnkit/sport-tapri-frontend
+
+This backend is designed to power the above frontend application.
 
 ---
 
 ## Features
 
 - Cursor-based infinite scrolling (no OFFSET)
+- Advanced match filtering (sport, league, team, date range)
 - One-hit DB operations (atomic & safe)
 - Clean separation of Routes / Controllers / Services
 - Prisma ORM with PostgreSQL
 - Ready for Vercel / serverless environments
 - JWT-based authentication support
-- Favourites system (matches)
+- Favourite matches system (personalized feed)
+- Filter-source APIs for dropdowns (sports, leagues, teams)
 
 ---
 
 ## Tech Stack
 
 ### Backend
-
 - Node.js
 - Express.js
 - TypeScript
 
 ### Database & ORM
-
 - PostgreSQL
 - Prisma ORM
 - Neon Serverless Postgres
 
 ### Auth & Utilities
-
 - JWT (authentication)
 - bcrypt / bcryptjs (password hashing)
 - dotenv (environment variables)
 
 ### Deployment
-
 - Vercel (Serverless Functions)
 - Neon (Database)
 
@@ -95,8 +96,8 @@ Create a `.env` file:
 DATABASE_URL=postgresql://USER:PASSWORD@HOST/db?sslmode=require
 JWT_SECRET=your_jwt_secret
 PORT=3000
-NODE_ENV= //{development||production}
-CORS_ORIGINS=   //comma seperated site
+NODE_ENV=development  //{development||production}
+CORS_ORIGINS=http://localhost:3000,https://sport-tapri-frontend.vercel.app  //comma seperated links
 ```
 
 ---
@@ -128,31 +129,46 @@ http://localhost:3000
 
 ### Matches (Primary Feed)
 
-**GET** `/matches?cursor=<ISO_DATETIME>&limit=20`
+**GET** `/matches`
+
+Supports cursor pagination and advanced filtering.
+
+Query params:
+```
+cursor=<ISO_DATETIME>
+limit=20
+sportId=<SPORT_ID>
+leagueId=<LEAGUE_ID>
+teamId=<TEAM_ID>
+fromDate=YYYY-MM-DD
+toDate=YYYY-MM-DD
+```
 
 ---
 
-### Sports (Static)
-
-**GET** `/sports`
-
----
-
-### Leagues (Infinite Scroll)
-
-**GET** `/leagues?cursor=<LEAGUE_ID>&limit=10`
+### Sports
+- **GET** `/sports` (static + filter source)
 
 ---
 
-### Players (Infinite Scroll)
+### Leagues
+- **GET** `/leagues?cursor=<LEAGUE_ID>&limit=10`
+- **GET** `/leagues?sportId=<SPORT_ID>` (filter source)
 
-**GET** `/players?cursor=<PLAYER_ID>&limit=10`
+---
+
+### Teams
+- **GET** `/teams?sportId=<SPORT_ID>&leagueId=<LEAGUE_ID>`
+
+---
+
+### Players
+- **GET** `/players?cursor=<PLAYER_ID>&limit=10`
 
 ---
 
 ### Favourites (Authenticated)
-
-- **GET** `/favourites`
+- **GET** `/favourite`
 - **POST** `/favourites/:matchId`
 - **DELETE** `/favourites/:favouriteId`
 
@@ -160,7 +176,7 @@ http://localhost:3000
 
 ## Authentication
 
-- JWT-based
+- JWT-based authentication
 - Token sent via `Authorization: Bearer <token>`
 - Auth middleware injects `req.user`
 
@@ -168,9 +184,11 @@ http://localhost:3000
 
 ## Design Decisions
 
-- Cursor pagination for scalability
-- Database-enforced constraints
-- Service layer for business logic
-- One DB hit per mutation
+- Cursor-based pagination for scalability
+- Primary feed does filtering + pagination + personalization in one query
+- Database-enforced constraints (FK + unique indexes)
+- Service layer handles business logic
+- Controllers handle HTTP concerns only
 
 ---
+
