@@ -40,6 +40,21 @@ const sportsService = {
       upcomingMatchesCount: sport._count.matches,
     }));
   },
+   async getSportsFilter() {
+    return prisma.sport.findMany({
+      where: {
+        isActive: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    });
+  },
 };
 
 export default sportsService;

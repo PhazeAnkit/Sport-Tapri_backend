@@ -4,24 +4,60 @@ type GetMatchesInput = {
   cursor?: string;
   limit: number;
   userId: string;
+
+  sportId?: string;
+  leagueId?: string;
+  teamId?: string;
+  fromDate?: string;
+  toDate?: string;
 };
 
 const matchesService = {
-  async getMatches({ cursor, limit, userId }: GetMatchesInput) {
-    const matches = await prisma.match.findMany({
-      where: cursor
+  async getMatches({
+    cursor,
+    limit,
+    userId,
+    sportId,
+    leagueId,
+    teamId,
+    fromDate,
+    toDate,
+  }: GetMatchesInput) {
+    const where: any = {
+      ...(sportId && { sportId }),
+      ...(leagueId && { leagueId }),
+
+      ...(teamId && {
+        OR: [
+          { homeTeamId: teamId },
+          { awayTeamId: teamId },
+        ],
+      }),
+
+      ...(fromDate || toDate
         ? {
             startTime: {
-              gt: new Date(cursor),
+              ...(fromDate && { gte: new Date(fromDate) }),
+              ...(toDate && { lte: new Date(toDate) }),
             },
           }
-        : undefined,
+        : {}),
+
+      ...(cursor && {
+        startTime: {
+          gt: new Date(cursor),
+        },
+      }),
+    };
+
+    const matches = await prisma.match.findMany({
+      where,
 
       orderBy: {
         startTime: "asc",
       },
 
-      take: limit + 1,
+      take: limit + 1, // limit + 1 to detect hasMore
 
       include: {
         sport: {
@@ -61,28 +97,25 @@ const matchesService = {
           },
         },
 
-        // KEY PART
-        favourites: userId
-          ? {
-              where: {
-                userId,
-              },
-              select: {
-                id: true,
-              },
-            }
-          : false,
+        //favourite check (one-hit)
+        favourites: {
+          where: {
+            userId,
+          },
+          select: {
+            id: true,
+          },
+        },
       },
     });
 
     const hasMore = matches.length > limit;
     const data = hasMore ? matches.slice(0, limit) : matches;
-
     const lastMatch = data[data.length - 1];
 
     return {
       data: data.map((match) => {
-        const favourite = match.favourites?.[0];
+        const favourite = match.favourites[0];
 
         return {
           id: match.id,
@@ -95,7 +128,6 @@ const matchesService = {
           awayTeam: match.awayTeam,
           result: match.result ?? undefined,
 
-          // Favourite info
           isFavourite: !!favourite,
           favouriteId: favourite?.id ?? null,
         };

@@ -6,6 +6,7 @@ import matchRoutes from "./routes/match.routes";
 import sportRoutes from "./routes/sport.routes";
 import leaugeRoutes from "./routes/league.routes";
 import playerRoutes from "./routes/player.routes";
+import teamRoutes from "./routes/team.routes";
 import { me } from "./controllers/me.controller";
 import cookieParser from "cookie-parser";
 
@@ -45,6 +46,7 @@ app.use("/matches", matchRoutes);
 app.use("/sports", sportRoutes);
 app.use("/leagues", leaugeRoutes);
 app.use("/players", playerRoutes);
+app.use("/teams", teamRoutes);
 app.post("/logout", (_req, res) => {
   res.clearCookie("access_token", {
     httpOnly: true,

@@ -15,6 +15,19 @@ const sportsController = {
       });
     }
   },
+  async getSportsFilter(req: Request, res: Response) {
+    try {
+      const sports = await sportsService.getSportsFilter();
+
+      return res.status(200).json({
+        data: sports,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        message: error.message || "Failed to fetch sports",
+      });
+    }
+  },
 };
 
 export default sportsController;

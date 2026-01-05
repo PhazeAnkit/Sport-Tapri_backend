@@ -49,6 +49,24 @@ const leaguesService = {
       hasMore,
     };
   },
+
+   async getLeaguesFilter(sportId?: string) {
+    return prisma.league.findMany({
+      where: {
+        isActive: true,
+        ...(sportId && { sportId }),
+      },
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+        country: true,
+        sportId: true,
+      },
+    });
+  },
 };
 
 export default leaguesService;

@@ -19,6 +19,23 @@ const leaguesController = {
       });
     }
   },
+  async getLeaguesFilter(req: Request, res: Response) {
+    try {
+      const { sportId } = req.query;
+
+      const leagues = await leaguesService.getLeaguesFilter(
+        sportId as string | undefined
+      );
+
+      return res.status(200).json({
+        data: leagues,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        message: error.message || "Failed to fetch leagues",
+      });
+    }
+  },
 };
 
 export default leaguesController;
